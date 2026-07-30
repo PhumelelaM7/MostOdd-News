@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- Character encoding -->
+    <meta charset="UTF-8">
+
+    <!-- Responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Page title -->
+    <title>
+        {% block title %}
+            MostOdd News
+        {% endblock %}
+    </title>
+
+    <style>
+
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            margin: 0;
+            background-color: #f8f8f8;
+            color: #111;
+        }
+
+        header {
+            background: white;
+            border-bottom: 2px solid black;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 48px;
+            margin: 0;
+        }
+
+        header p {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        nav {
+            background: black;
+            padding: 12px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 85%;
+            margin: auto;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 8px 8px 8px 0;
+            background: black;
+            color: white;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #333;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgb(56,12,12);
+            color: white;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>MostOdd News</h1>
+
+    <p>
+        Independent reporting, trusted stories and community journalism
+    </p>
+
+</header>
+
+<nav>
+
+    <a href="{% url 'home' %}">
+        Home
+    </a>
+
+    <a href="{% url 'article_list' %}">
+        Articles
+    </a>
+
+    <a href="{% url 'newsletter_list' %}">
+        Newsletters
+    </a>
+
+    {% if user.is_authenticated %}
+
+        <!-- ONLY JOURNALISTS MAY CREATE -->
+        {% if user.role == "journalist" or user.is_superuser %}
+
+            <a href="{% url 'article_create' %}">
+                Create Article
+            </a>
+
+            <a href="{% url 'newsletter_create' %}">
+                Create Newsletter
+            </a>
+
+        {% endif %}
+
+        <!-- Editors approve articles -->
+        {% if user.role == "editor" or user.is_superuser %}
+
+            <a href="{% url 'pending_articles' %}">
+                Pending Articles
+            </a>
+
+        {% endif %}
+
+        <form
+            method="post"
+            action="{% url 'logout' %}"
+            style="display:inline;"
+        >
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                style="
+                    background:none;
+                    border:none;
+                    color:white;
+                    cursor:pointer;
+                    font-family:Arial,sans-serif;
+                    font-size:16px;
+                    margin-left:15px;
+                "
+            >
+                Logout
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <a href="{% url 'login' %}">
+            Login
+        </a>
+
+        <a href="{% url 'register' %}">
+            Register
+        </a>
+
+    {% endif %}
+
+</nav>
+
+<div class="container">
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                style="
+                    background:#e8f5e9;
+                    color:#1b5e20;
+                    border-left:5px solid #2e7d32;
+                    padding:15px;
+                    margin-bottom:20px;
+                "
+            >
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+</div>
+
+<footer>
+
+    <p>
+        MostOdd News - Django Capstone Project
+    </p>
+
+    <p>
+        Created by Phumelela Mdingi
+    </p>
+
+</footer>
+
+</body>
+</html>

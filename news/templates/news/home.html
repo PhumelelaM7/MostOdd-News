@@ -1,0 +1,73 @@
+<!-- Use the shared newspaper layout -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+MostOdd News
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<section class="headline">
+
+    <h2>
+        Welcome to MostOdd News
+    </h2>
+
+    <p>
+        A Django-powered news platform where journalists create stories,
+        editors review and approve content, and readers access published news.
+    </p>
+
+    <!-- Link to the article list -->
+    <a
+        class="button"
+        href="{% url 'article_list' %}"
+    >
+        Read Articles
+    </a>
+
+</section>
+
+<section class="articles">
+
+    <div class="card">
+
+        <h3>
+            Journalists
+        </h3>
+
+        <p>
+            Create articles and submit stories for editorial review.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>
+            Editors
+        </h3>
+
+        <p>
+            Review pending articles and approve quality content.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>
+            Readers
+        </h3>
+
+        <p>
+            Browse approved articles and follow your favourite publishers.
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

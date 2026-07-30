@@ -1,0 +1,102 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+Articles
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h2>Latest News</h2>
+
+<!-- Only Journalists and Superusers may create articles -->
+{% if user.is_authenticated %}
+
+    {% if user.role == "journalist" or user.is_superuser %}
+
+        <p>
+
+            <a
+                href="{% url 'article_create' %}"
+                class="button"
+            >
+                Create New Article
+            </a>
+
+        </p>
+
+    {% endif %}
+
+{% endif %}
+
+{% if articles %}
+
+    {% for article in articles %}
+
+        <div
+            style="
+                background:white;
+                padding:20px;
+                margin-bottom:20px;
+                border-top:3px solid black;
+            "
+        >
+
+            <h3>{{ article.title }}</h3>
+
+            <p>
+
+                {{ article.content|truncatewords:40 }}
+
+            </p>
+
+            <p>
+
+                <strong>Author:</strong>
+
+                {{ article.author.username }}
+
+            </p>
+
+            {% if article.publisher %}
+
+                <p>
+
+                    <strong>Publisher:</strong>
+
+                    {{ article.publisher }}
+
+                </p>
+
+            {% else %}
+
+                <p>
+
+                    <strong>Publisher:</strong>
+
+                    Independent Journalist
+
+                </p>
+
+            {% endif %}
+
+            <a
+                href="{% url 'article_detail' article.id %}"
+                class="button"
+            >
+                Read Article
+            </a>
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>No approved articles have been published yet.</p>
+
+{% endif %}
+
+{% endblock %}

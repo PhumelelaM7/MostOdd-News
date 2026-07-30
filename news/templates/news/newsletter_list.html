@@ -1,0 +1,96 @@
+{% extends "news/base.html" %}
+
+{% block title %}
+Newsletters
+{% endblock %}
+
+{% block content %}
+
+<h2>Newsletters</h2>
+
+<!-- Only journalists may create newsletters -->
+{% if user.is_authenticated %}
+
+    {% if user.role == "journalist" or user.is_superuser %}
+
+        <p>
+
+            <a
+                href="{% url 'newsletter_create' %}"
+                class="button"
+            >
+                Create Newsletter
+            </a>
+
+        </p>
+
+    {% endif %}
+
+{% endif %}
+
+{% if newsletters %}
+
+    {% for newsletter in newsletters %}
+
+        <div
+            style="
+                background:white;
+                padding:20px;
+                margin-bottom:20px;
+                border-top:3px solid black;
+            "
+        >
+
+            <h3>{{ newsletter.title }}</h3>
+
+            <p>
+                {{ newsletter.description|truncatewords:30 }}
+            </p>
+
+            <p>
+
+                <strong>Author:</strong>
+
+                {{ newsletter.author.username }}
+
+            </p>
+
+            <a
+                href="{% url 'newsletter_detail' newsletter.id %}"
+                class="button"
+            >
+                Read Newsletter
+            </a>
+
+            <!-- Editors may edit/delete but NOT create -->
+            {% if user == newsletter.author or user.role == "editor" or user.is_superuser %}
+
+                <a
+                    href="{% url 'newsletter_update' newsletter.id %}"
+                    class="button"
+                >
+                    Edit
+                </a>
+
+                <a
+                    href="{% url 'newsletter_delete' newsletter.id %}"
+                    class="button"
+                >
+                    Delete
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <p>
+        No newsletters have been published yet.
+    </p>
+
+{% endif %}
+
+{% endblock %}

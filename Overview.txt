@@ -1,0 +1,90 @@
+News Application Capstone Roadmap
+
+Goal
+
+Build a Django News Application that demonstrates authentication,
+role-based permissions, CRUD functionality, REST APIs, automated
+testing, and MariaDB integration.
+
+Development Strategy
+
+Work in small, testable milestones: 1. Implement one requirement. 2.
+Test it. 3. Fix issues. 4. Commit to Git. 5. Move to the next milestone.
+
+Phase 1 – Project Setup
+
+-   Create Django project
+-   Create app(s)
+-   Configure settings
+-   Run server
+-   Initial Git commit
+
+Phase 2 – Database Design
+
+-   Custom User
+-   Publisher
+-   Article
+-   Newsletter
+-   Migrations
+-   Admin registration
+
+Phase 3 – Authentication & Roles
+
+-   Register/Login/Logout
+-   Reader, Journalist, Editor roles
+-   Django Groups
+-   Permissions
+
+Phase 4 – Admin
+
+-   Configure Django Admin
+-   Verify relationships
+
+Phase 5 – Front End
+
+-   Base template
+-   Bootstrap
+-   Navigation
+-   Home, Articles, Publishers, Newsletters
+
+Phase 6 – CRUD
+
+-   Create, Read, Update, Delete
+-   Access control
+
+Phase 7 – Approval Workflow
+
+-   Editor approval
+-   Email notifications
+-   POST approved article to internal API
+
+Phase 8 – REST API
+
+-   Django REST Framework
+-   Serializers
+-   JWT Authentication
+-   Required endpoints
+
+Phase 9 – Testing
+
+-   Models
+-   Views
+-   API
+-   Permissions
+-   Approval workflow
+
+Phase 10 – Finalisation
+
+-   MariaDB migration
+-   README
+-   Final testing
+-   GitHub submission
+
+Success Criteria
+
+-   Functional Django application
+-   Secure authentication and authorization
+-   Working REST API
+-   Automated tests
+-   Clean code and documentation
+-   Ready for submission and portfolio use

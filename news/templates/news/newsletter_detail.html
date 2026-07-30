@@ -1,0 +1,73 @@
+{% extends "news/base.html" %}
+
+{% block title %}
+{{ newsletter.title }}
+{% endblock %}
+
+{% block content %}
+
+<h2>{{ newsletter.title }}</h2>
+
+<p>
+
+<strong>Author:</strong>
+
+{{ newsletter.author.username }}
+
+</p>
+
+<p>
+
+{{ newsletter.description }}
+
+</p>
+
+<hr>
+
+<h3>Articles</h3>
+
+{% if newsletter.articles.all %}
+
+<ul>
+
+{% for article in newsletter.articles.all %}
+
+<li>
+
+<a href="{% url 'article_detail' article.id %}">
+   
+
+{{ article.title }}
+
+</a>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+{% else %}
+
+<p>
+
+No articles have been added.
+
+</p>
+
+{% endif %}
+
+<p>
+
+<a
+    href="{% url 'newsletter_list' %}"
+    class="button"
+>
+
+Back to Newsletters
+
+</a>
+
+</p>
+
+{% endblock %}

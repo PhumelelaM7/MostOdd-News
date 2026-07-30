@@ -1,0 +1,44 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+Delete Article
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h1>Delete Article</h1>
+
+<p>
+    Are you sure you want to delete:
+</p>
+
+<h3>{{ article.title }}</h3>
+
+<!-- Confirmation form -->
+<form method="post">
+
+    <!-- Django CSRF protection -->
+    {% csrf_token %}
+
+    <!-- Confirm deletion -->
+    <button
+        type="submit"
+        class="button"
+    >
+        Delete
+    </button>
+
+    <!-- Cancel deletion -->
+    <a
+        href="{% url 'article_detail' article.id %}"
+        class="button"
+    >
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

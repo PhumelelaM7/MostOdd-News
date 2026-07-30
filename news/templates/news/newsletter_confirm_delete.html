@@ -1,0 +1,46 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+Delete Newsletter
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h1>Delete Newsletter</h1>
+
+<p>
+
+    Are you sure you want to delete
+
+    <strong>{{ newsletter.title }}</strong>?
+
+</p>
+
+<!-- Delete confirmation form -->
+<form method="post">
+
+    <!-- Django CSRF protection -->
+    {% csrf_token %}
+
+    <!-- Confirm deletion -->
+    <button
+        type="submit"
+        class="button"
+    >
+        Delete Newsletter
+    </button>
+
+    <!-- Cancel deletion -->
+    <a
+        href="{% url 'newsletter_list' %}"
+        class="button"
+    >
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}

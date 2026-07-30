@@ -1,0 +1,51 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+Approve Article
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h1>{{ article.title }}</h1>
+
+<p>
+
+<strong>Author:</strong>
+
+{{ article.author.username }}
+
+</p>
+
+<p>
+
+<strong>Publisher:</strong>
+
+{{ article.publisher.name }}
+
+</p>
+
+<p>
+
+{{ article.content }}
+
+</p>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<button
+    type="submit"
+    class="button"
+>
+
+Approve Article
+
+</button>
+
+</form>
+
+{% endblock %}

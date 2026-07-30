@@ -1,0 +1,39 @@
+<!-- Use the newspaper base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+Register - MostOdd News
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h2>Create Account</h2>
+
+<form method="POST">
+
+    <!-- Protect form against CSRF attacks -->
+    {% csrf_token %}
+
+    <!-- Display the registration form -->
+    {{ form.as_p }}
+
+    <!-- Submit button -->
+    <button type="submit">
+        Register
+    </button>
+
+</form>
+
+<p>
+
+    Already have an account?
+
+    <a href="/accounts/login/">
+        Login
+    </a>
+
+</p>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+{{ article.title }}
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h1>{{ article.title }}</h1>
+
+<p>
+    <strong>Author:</strong>
+    {{ article.author.username }}
+</p>
+
+<!-- Allow Readers to subscribe to journalists -->
+{% if user.is_authenticated and user.role == "reader" and article.author.role == "journalist" %}
+
+    <a
+        href="{% url 'subscribe_journalist' article.author.id %}"
+        class="button"
+    >
+        Subscribe to Journalist
+    </a>
+
+{% endif %}
+
+<!-- Display publisher information -->
+{% if article.publisher %}
+
+    <p>
+        <strong>Publisher:</strong>
+        {{ article.publisher }}
+    </p>
+
+    <!-- Allow Readers to subscribe to publishers -->
+    {% if user.is_authenticated and user.role == "reader" %}
+
+        <a
+            href="{% url 'subscribe_publisher' article.publisher.id %}"
+            class="button"
+        >
+            Subscribe to Publisher
+        </a>
+
+    {% endif %}
+
+{% else %}
+
+    <p>
+        <strong>Publisher:</strong>
+        Independent Journalist
+    </p>
+
+{% endif %}
+
+<p>
+    <strong>Published:</strong>
+    {{ article.created_at }}
+</p>
+
+<hr>
+
+<!-- Display the complete article -->
+<h3>Article Content</h3>
+
+<p>
+    {{ article.content }}
+</p>
+
+<hr>
+
+<!-- Allow the article author, editors or superusers to manage the article -->
+{% if user == article.author or user.role == "editor" or user.is_superuser %}
+
+    <!-- Edit article -->
+    <a
+        href="{% url 'article_update' article.id %}"
+        class="button"
+    >
+        Edit Article
+    </a>
+
+    <!-- Delete article -->
+    <a
+        href="{% url 'article_delete' article.id %}"
+        class="button"
+    >
+        Delete Article
+    </a>
+
+{% endif %}
+
+<!-- Return to the article list -->
+<a
+    href="{% url 'article_list' %}"
+    class="button"
+>
+    Back to Articles
+</a>
+
+{% endblock %}

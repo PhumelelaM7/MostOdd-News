@@ -1,0 +1,41 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+{{ page_title }}
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h1>{{ page_title }}</h1>
+
+<!-- Newsletter form -->
+<form method="post">
+
+    <!-- Django CSRF protection -->
+    {% csrf_token %}
+
+    <!-- Display the form -->
+    {{ form.as_p }}
+
+    <!-- Submit button -->
+    <button
+        type="submit"
+        class="button"
+    >
+        Save Newsletter
+    </button>
+
+    <!-- Return to the newsletter list -->
+    <a
+        href="{% url 'newsletter_list' %}"
+        class="button"
+    >
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}
