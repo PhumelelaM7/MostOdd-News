@@ -1,0 +1,30 @@
+
+services:
+
+  db:
+    image: mariadb:12.3
+    container_name: mostodd-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: news_application
+      MYSQL_USER: news_user
+      MYSQL_PASSWORD: NewsApp123!
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  web:
+    build: .
+    container_name: mostodd-news
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  mariadb_data:

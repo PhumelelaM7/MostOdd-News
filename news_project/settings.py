@@ -78,13 +78,13 @@ WSGI_APPLICATION = 'news_project.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'news_application',
-        'USER': 'news_user',
-        'PASSWORD': 'NewsApp123!',
-        'HOST': 'localhost',
-        'PORT': '3306',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "news_application",
+        "USER": "news_user",
+        "PASSWORD": "NewsApp123!",
+        "HOST": "db",
+        "PORT": "3306",
     }
 }
 
