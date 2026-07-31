@@ -4,17 +4,15 @@
 
 The MostOdd News Application is a Django web application that I developed as part of my HyperionDev Software Engineering Capstone Project.
 
-The aim of the project was to build a news platform that allows different types of users to perform different tasks based on their roles. Journalists can write articles and newsletters, editors review and approve articles before publication, and readers can browse published content and subscribe to journalists and publishers.
+The aim of this project was to build a news website where different users have different responsibilities. Journalists can write articles, editors review and approve them before they are published, and readers can browse approved articles and subscribe to publishers and journalists.
 
-The project also includes a REST API built with Django REST Framework, JWT authentication for secure API access, and MariaDB as the database instead of SQLite.
+I also added a REST API using Django REST Framework, JWT authentication, MariaDB, Docker support and Sphinx documentation.
 
 ---
 
 ## Features
 
-### User Roles
-
-The application supports three different user roles.
+The application has three different user roles.
 
 ### Reader
 
@@ -23,15 +21,11 @@ Readers can:
 - Register and log in
 - Read approved articles
 - Read newsletters
-- Subscribe to journalists
 - Subscribe to publishers
+- Subscribe to journalists
 - View articles from their subscriptions
 
-Readers cannot:
-
-- Create articles
-- Create newsletters
-- Approve articles
+Readers cannot create or approve articles.
 
 ---
 
@@ -39,12 +33,12 @@ Readers cannot:
 
 Journalists can:
 
-- Create new articles
+- Create articles
 - Edit and delete their own articles
 - Create newsletters
 - Edit and delete their own newsletters
 
-Articles created by journalists are not published immediately. They must first be approved by an editor.
+Articles created by journalists are saved as pending until an editor approves them.
 
 ---
 
@@ -54,36 +48,32 @@ Editors can:
 
 - View pending articles
 - Approve articles
-- Edit any article
-- Delete any article
-- Edit and delete newsletters
-- Create publishers
+- Edit pending articles
+- Delete pending articles
+- Manage publishers
+- Manage newsletters
 
-Editors cannot create new articles or newsletters, as these are created by journalists.
+When an article is approved, it is recorded in the Approved Article Log.
 
 ---
 
-## Article Approval Process
+## Article Approval
 
-The application uses an approval workflow before articles become visible to readers.
-
-1. A journalist creates an article.
-2. The article is saved with:
+When a journalist creates an article it is saved as:
 
 ```python
 approved = False
 ```
 
-3. The article appears in the Pending Articles page.
-4. An editor reviews the article.
-5. If approved, the article is updated to:
+The article then appears in the Pending Articles page where an editor can review it.
+
+Once the editor approves it, the value changes to:
 
 ```python
 approved = True
 ```
 
-6. The approval is recorded in the Approved Article Log.
-7. Subscribers receive an email notification about the newly approved article.
+The approval is stored in the Approved Article Log and subscribers receive an email notification.
 
 ---
 
@@ -91,123 +81,52 @@ approved = True
 
 Publishers are used to organise journalists and editors.
 
-Each publisher can have:
+Each publisher can have multiple journalists, editors and articles.
 
-- Multiple journalists
-- Multiple editors
-- Multiple articles
-
-Readers are able to subscribe to publishers so they can receive notifications whenever a new article is approved.
+Readers can subscribe to publishers so they receive notifications whenever approved articles are published.
 
 ---
 
 ## Newsletter System
 
-Journalists can create newsletters containing multiple articles.
+Journalists can create newsletters that contain approved articles.
 
-Readers can browse available newsletters after they have been created.
+Readers can browse newsletters from the website.
 
 ---
 
 ## REST API
 
-The project includes a REST API built using Django REST Framework.
+The project includes a REST API built with Django REST Framework.
 
 ### Articles
 
-Retrieve all approved articles
-
 ```
 GET /api/articles/
-```
-
-Create an article
-
-```
 POST /api/articles/
-```
-
-Retrieve a specific article
-
-```
 GET /api/articles/<id>/
-```
-
-Update an article
-
-```
 PUT /api/articles/<id>/
-```
-
-Delete an article
-
-```
 DELETE /api/articles/<id>/
 ```
 
----
-
 ### Subscribed Articles
-
-Retrieve approved articles from subscribed publishers and journalists.
 
 ```
 GET /api/articles/subscribed/
 ```
 
----
-
 ### Newsletters
-
-Retrieve newsletters
 
 ```
 GET /api/newsletters/
-```
-
-Create a newsletter
-
-```
 POST /api/newsletters/
-```
-
-Retrieve a specific newsletter
-
-```
 GET /api/newsletters/<id>/
 ```
 
----
-
-### Approved Article Log
-
-Retrieve approval records.
-
-```
-GET /api/approved/
-```
-
-Create an approval record.
-
-```
-POST /api/approved/
-```
-
----
-
-## Authentication
-
-JWT authentication was implemented using Simple JWT.
-
-Obtain an access token:
+### JWT Authentication
 
 ```
 POST /api/token/
-```
-
-Refresh an access token:
-
-```
 POST /api/token/refresh/
 ```
 
@@ -215,14 +134,17 @@ POST /api/token/refresh/
 
 ## Technologies Used
 
-This project was developed using:
+I used the following technologies:
 
 - Python
 - Django
 - Django REST Framework
 - MariaDB
-- MySQL Client
+- mysqlclient
 - JWT Authentication
+- Docker
+- Docker Compose
+- Sphinx
 - HTML
 - CSS
 - Git
@@ -235,10 +157,10 @@ This project was developed using:
 Clone the repository.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/PhumelelaM7/MostOdd-News.git
 ```
 
-Navigate to the project folder.
+Go into the project folder.
 
 ```bash
 cd "News Application"
@@ -250,7 +172,7 @@ Create a virtual environment.
 python -m venv venv
 ```
 
-Activate the virtual environment.
+Activate it.
 
 Windows:
 
@@ -258,10 +180,45 @@ Windows:
 venv\Scripts\activate
 ```
 
-Install the required packages.
+Install the project requirements.
 
 ```bash
 pip install -r requirements.txt
+```
+
+---
+
+## Database Setup
+
+This project uses MariaDB instead of SQLite.
+
+Create the database.
+
+```sql
+CREATE DATABASE news_application;
+```
+
+Create a user.
+
+```sql
+CREATE USER 'news_user'@'localhost'
+IDENTIFIED BY 'NewsApp123!';
+```
+
+Give the user permission to use the database.
+
+```sql
+GRANT ALL PRIVILEGES
+ON news_application.*
+TO 'news_user'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+
+If you use different database details, update the `DATABASES` section inside:
+
+```
+news_project/settings.py
 ```
 
 Run the migrations.
@@ -276,13 +233,13 @@ Create a superuser.
 python manage.py createsuperuser
 ```
 
-Run the development server.
+Start the server.
 
 ```bash
 python manage.py runserver
 ```
 
-Open the application in your browser.
+Open:
 
 ```
 http://127.0.0.1:8000/
@@ -290,26 +247,58 @@ http://127.0.0.1:8000/
 
 ---
 
+## Running with Docker
+
+Build the project.
+
+```bash
+docker compose build
+```
+
+Run the containers.
+
+```bash
+docker compose up
+```
+
+Apply migrations.
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+Create a superuser.
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+Open:
+
+```
+http://localhost:8000/
+```
+
+---
+
 ## Running the Tests
 
-The project includes automated tests for the API and permissions.
-
-Run all tests with:
+Run all tests.
 
 ```bash
 python manage.py test
 ```
 
-Or run only the API tests.
+Or only the API tests.
 
 ```bash
 python manage.py test news.tests.test_api
 ```
 
-Current test results:
+Current result:
 
 ```
-Found 12 test(s)
+Found 12 tests
 
 Ran 12 tests
 
@@ -318,54 +307,64 @@ OK
 
 ---
 
-## Project Structure
+## Documentation
+
+The project also includes Sphinx documentation.
+
+Generate it using:
+
+```bash
+cd docs
+make html
+```
+
+Open:
 
 ```
-News Application/
-│
-├── news/
-│   ├── admin.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── permissions.py
-│   ├── serializers.py
-│   ├── signals.py
-│   ├── test_api.py
-│   ├── urls.py
-│   ├── views.py
-│   └── templates/
-│
-├── news_project/
-│   ├── settings.py
-│   └── urls.py
-│
-├── manage.py
-├── requirements.txt
-└── README.md
+docs/build/html/index.html
 ```
 
 ---
 
-## Completed Requirements
+## Project Structure
+
+```
+News Application/
+
+├── docs/
+├── news/
+├── news_project/
+├── Dockerfile
+├── docker-compose.yml
+├── manage.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
+
+---
+
+## Completed Features
 
 This project includes:
 
 - Custom User Model
 - Reader, Journalist and Editor roles
-- MariaDB database
-- Django REST Framework API
-- JWT Authentication
-- Article approval workflow
 - Publisher management
-- Newsletter management
 - Reader subscriptions
+- Article approval workflow
+- Newsletter management
+- Approved Article Log
 - Email notifications
-- Approved article logging
-- Custom permissions
+- REST API
+- JWT Authentication
+- MariaDB
+- Docker support
+- Sphinx documentation
 - Unit tests
 
 ---
 
 ## Author
 
-**Phumelela Mdingi**
+Phumelela Mdingi

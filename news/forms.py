@@ -18,9 +18,6 @@ from .models import (
 )
 
 
-# ---------------------------------------------------------
-# User Registration Form
-# ---------------------------------------------------------
 class RegistrationForm(UserCreationForm):
     """
     Allows new users to create an account.
@@ -31,7 +28,7 @@ class RegistrationForm(UserCreationForm):
     """
 
     class Meta:
-        """ Meta options for the RegistrationForm. """
+        """Meta options for the RegistrationForm."""
 
         # Use our CustomUser model
         model = CustomUser
@@ -44,6 +41,29 @@ class RegistrationForm(UserCreationForm):
             "password1",
             "password2",
         ]
+
+    # ---------------------------------------------------------
+    # Validate Email Address
+    # ---------------------------------------------------------
+    def clean_email(self):
+        """
+        Prevent users from registering with an email
+        address that already exists.
+        """
+
+        # Get the email entered by the user
+        email = self.cleaned_data.get("email")
+
+        # Check whether another account already uses this email
+        if CustomUser.objects.filter(email=email).exists():
+
+            # Display a validation error if the email already exists
+            raise forms.ValidationError(
+                "An account with this email address already exists."
+            )
+
+        # Return the validated email address
+        return email
 
 
 # ---------------------------------------------------------
@@ -89,6 +109,25 @@ class NewsletterForm(forms.ModelForm):
             "description",
             "articles",
         ]
+
+    # ---------------------------------------------------------
+    # Initialise the newsletter form
+    # ---------------------------------------------------------
+    def __init__(self, *args, **kwargs):
+        """
+        Only approved articles can be selected
+        when creating or editing a newsletter.
+        """
+
+        # Initialise the parent ModelForm
+        super().__init__(*args, **kwargs)
+
+        # Only show approved articles
+        self.fields["articles"].queryset = (
+            Article.objects.filter(
+                approved=True
+            )
+        )
 
 
 # ---------------------------------------------------------

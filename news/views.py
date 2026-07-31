@@ -882,6 +882,31 @@ def newsletter_delete(request, newsletter_id):
 
 
 # ---------------------------------------------------------
+# List all publishers
+# ---------------------------------------------------------
+@login_required
+def publisher_list(request):
+    """
+    Display all publishers.
+
+    Readers can browse publishers and subscribe.
+    Editors can access the page to manage publishers.
+    """
+
+    # Get all publishers
+    publishers = Publisher.objects.all()
+
+    # Display the publisher list
+    return render(
+        request,
+        "news/publisher_list.html",
+        {
+            "publishers": publishers,
+        },
+    )
+
+
+# ---------------------------------------------------------
 # Create a publisher
 # ---------------------------------------------------------
 @login_required
@@ -914,8 +939,8 @@ def publisher_create(request):
             # Save the publisher
             form.save()
 
-            # Return to the article list
-            return redirect("article_list")
+            # Return to the publisher list
+            return redirect("publisher_list")
 
     else:
 

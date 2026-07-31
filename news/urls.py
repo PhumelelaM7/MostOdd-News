@@ -104,6 +104,13 @@ urlpatterns = [
         name="newsletter_delete",
     ),
 
+    # View all publishers
+    path(
+        "publishers/",
+        views.publisher_list,
+        name="publisher_list",
+    ),
+
     # Create a new publisher
     path(
         "publishers/create/",

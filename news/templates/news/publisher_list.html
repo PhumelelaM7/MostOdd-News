@@ -1,0 +1,67 @@
+{% extends "news/base.html" %}
+
+{% block content %}
+
+<h2>Publishers</h2>
+
+{% if publishers %}
+
+<ul>
+
+    {% for publisher in publishers %}
+
+    <li>
+
+        <h3>{{ publisher.name }}</h3>
+
+        <p>{{ publisher.description }}</p>
+
+        <p>
+            <strong>Journalists:</strong>
+
+            {% for journalist in publisher.journalists.all %}
+                {{ journalist.username }}
+                {% if not forloop.last %}, {% endif %}
+            {% empty %}
+                None assigned
+            {% endfor %}
+        </p>
+
+        <p>
+            <strong>Editors:</strong>
+
+            {% for editor in publisher.editors.all %}
+                {{ editor.username }}
+                {% if not forloop.last %}, {% endif %}
+            {% empty %}
+                None assigned
+            {% endfor %}
+        </p>
+
+        {% if user.role == "reader" %}
+
+            <!-- Subscribe to publisher -->
+            <a
+                href="{% url 'subscribe_publisher' publisher.id %}"
+                class="button"
+            >
+                Subscribe
+            </a>
+
+        {% endif %}
+
+    </li>
+
+    <hr>
+
+    {% endfor %}
+
+</ul>
+
+{% else %}
+
+<p>No publishers have been created yet.</p>
+
+{% endif %}
+
+{% endblock %}

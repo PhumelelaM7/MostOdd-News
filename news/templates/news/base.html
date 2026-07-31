@@ -118,6 +118,11 @@
         Newsletters
     </a>
 
+    <!-- View all publishers -->
+    <a href="{% url 'publisher_list' %}">
+        Publishers
+    </a>
+
     {% if user.is_authenticated %}
 
         <!-- ONLY JOURNALISTS MAY CREATE -->
@@ -138,6 +143,11 @@
 
             <a href="{% url 'pending_articles' %}">
                 Pending Articles
+            </a>
+
+            <!-- Editors can create publishers -->
+            <a href="{% url 'publisher_create' %}">
+                Create Publisher
             </a>
 
         {% endif %}

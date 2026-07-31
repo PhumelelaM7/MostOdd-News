@@ -32,12 +32,26 @@ Delete Article
     </button>
 
     <!-- Cancel deletion -->
-    <a
-        href="{% url 'article_detail' article.id %}"
-        class="button"
-    >
-        Cancel
-    </a>
+
+    {% if user.role == "editor" or user.is_superuser %}
+
+        <a
+            href="{% url 'pending_articles' %}"
+            class="button"
+        >
+            Cancel
+        </a>
+
+    {% else %}
+
+        <a
+            href="{% url 'article_list' %}"
+            class="button"
+        >
+            Cancel
+        </a>
+
+    {% endif %}
 
 </form>
 

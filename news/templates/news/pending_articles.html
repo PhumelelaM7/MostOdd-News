@@ -31,8 +31,28 @@ Pending Articles
             {{ article.publisher.name }}
         </p>
 
-        <a href="{% url 'approve_article' article.id %}">
+        <!-- Review and approve the article -->
+        <a
+            href="{% url 'approve_article' article.id %}"
+            class="button"
+        >
             Review Article
+        </a>
+
+        <!-- Edit the article before approval -->
+        <a
+            href="{% url 'article_update' article.id %}"
+            class="button"
+        >
+            Edit
+        </a>
+
+        <!-- Delete the article before approval -->
+        <a
+            href="{% url 'article_delete' article.id %}"
+            class="button"
+        >
+            Delete
         </a>
 
     </li>
