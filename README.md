@@ -4,15 +4,15 @@
 
 The MostOdd News Application is a Django web application that I developed as part of my HyperionDev Software Engineering Capstone Project.
 
-The aim of this project was to build a news website where different users have different responsibilities. Journalists can write articles, editors review and approve them before they are published, and readers can browse approved articles and subscribe to publishers and journalists.
+The aim of this project was to build a news website where different users have different responsibilities. Journalists create articles, editors review and approve them before publication, and readers browse approved articles while subscribing to publishers and journalists that interest them.
 
-I also added a REST API using Django REST Framework, JWT authentication, MariaDB, Docker support and Sphinx documentation.
+The project also includes a REST API built with Django REST Framework, JWT authentication, MariaDB, Docker support, Sphinx documentation, and automated API tests.
 
 ---
 
 ## Features
 
-The application has three different user roles.
+The application provides role-based access control through three different user roles.
 
 ### Reader
 
@@ -21,11 +21,11 @@ Readers can:
 - Register and log in
 - Read approved articles
 - Read newsletters
-- Subscribe to publishers
-- Subscribe to journalists
-- View articles from their subscriptions
+- Subscribe to publishers directly from the article list or article detail page
+- Subscribe to journalists directly from the article list or article detail page
+- View articles from subscribed publishers and journalists
 
-Readers cannot create or approve articles.
+Readers cannot create, edit, delete or approve articles.
 
 ---
 
@@ -34,11 +34,13 @@ Readers cannot create or approve articles.
 Journalists can:
 
 - Create articles
-- Edit and delete their own articles
+- Edit their own articles
+- Delete their own articles
 - Create newsletters
-- Edit and delete their own newsletters
+- Edit their own newsletters
+- Delete their own newsletters
 
-Articles created by journalists are saved as pending until an editor approves them.
+Articles created by journalists remain pending until approved by an editor.
 
 ---
 
@@ -48,50 +50,84 @@ Editors can:
 
 - View pending articles
 - Approve articles
-- Edit pending articles
-- Delete pending articles
-- Manage publishers
+- Edit any article
+- Delete any article
+- Create publishers
 - Manage newsletters
 
-When an article is approved, it is recorded in the Approved Article Log.
+The home page provides quick access to:
+
+- Read Articles
+- Create Publisher
+- Pending Articles
+
+making the editorial workflow more efficient.
 
 ---
 
-## Article Approval
+## Role-Based User Management
 
-When a journalist creates an article it is saved as:
+The application uses a custom user model with three roles:
+
+- Reader
+- Journalist
+- Editor
+
+Reader accounts may subscribe to publishers and journalists.
+
+If a Reader changes role to either Journalist or Editor, the application automatically removes all reader subscriptions to ensure role-specific data remains consistent.
+
+Users are automatically assigned to the correct Django Group during registration based on their selected role.
+
+---
+
+## Article Approval Workflow
+
+When a journalist creates an article it is initially saved as:
 
 ```python
 approved = False
 ```
 
-The article then appears in the Pending Articles page where an editor can review it.
+The article appears on the Pending Articles page where editors can review it.
 
-Once the editor approves it, the value changes to:
+Once approved, the article becomes:
 
 ```python
 approved = True
 ```
 
-The approval is stored in the Approved Article Log and subscribers receive an email notification.
+The application then:
+
+- Records the approval in the Approved Article Log
+- Sends email notifications to subscribers
+- Triggers the internal API integration used by the project
 
 ---
 
 ## Publisher System
 
-Publishers are used to organise journalists and editors.
+Publishers organise journalists and editors.
 
-Each publisher can have multiple journalists, editors and articles.
+Each publisher can contain multiple:
 
-Readers can subscribe to publishers so they receive notifications whenever approved articles are published.
+- Journalists
+- Editors
+- Articles
+
+Editors can create publishers directly from the application interface.
+
+Readers can subscribe to publishers to receive updates whenever approved articles are published.
 
 ---
 
 ## Newsletter System
 
-Journalists can create newsletters that contain approved articles.
+Journalists create newsletters containing approved articles.
 
-Readers can browse newsletters from the website.
+Editors can also manage newsletters.
+
+Readers can browse all published newsletters.
 
 ---
 
@@ -102,10 +138,10 @@ The project includes a REST API built with Django REST Framework.
 ### Articles
 
 ```
-GET /api/articles/
-POST /api/articles/
-GET /api/articles/<id>/
-PUT /api/articles/<id>/
+GET    /api/articles/
+POST   /api/articles/
+GET    /api/articles/<id>/
+PUT    /api/articles/<id>/
 DELETE /api/articles/<id>/
 ```
 
@@ -118,9 +154,9 @@ GET /api/articles/subscribed/
 ### Newsletters
 
 ```
-GET /api/newsletters/
-POST /api/newsletters/
-GET /api/newsletters/<id>/
+GET    /api/newsletters/
+POST   /api/newsletters/
+GET    /api/newsletters/<id>/
 ```
 
 ### JWT Authentication
@@ -134,7 +170,7 @@ POST /api/token/refresh/
 
 ## Technologies Used
 
-I used the following technologies:
+This project was developed using:
 
 - Python
 - Django
@@ -160,7 +196,7 @@ Clone the repository.
 git clone https://github.com/PhumelelaM7/MostOdd-News.git
 ```
 
-Go into the project folder.
+Navigate into the project folder.
 
 ```bash
 cd "News Application"
@@ -198,14 +234,14 @@ Create the database.
 CREATE DATABASE news_application;
 ```
 
-Create a user.
+Create a database user.
 
 ```sql
 CREATE USER 'news_user'@'localhost'
 IDENTIFIED BY 'NewsApp123!';
 ```
 
-Give the user permission to use the database.
+Grant privileges.
 
 ```sql
 GRANT ALL PRIVILEGES
@@ -215,13 +251,13 @@ TO 'news_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-If you use different database details, update the `DATABASES` section inside:
+If your database credentials differ, update the `DATABASES` section inside:
 
 ```
 news_project/settings.py
 ```
 
-Run the migrations.
+Run migrations.
 
 ```bash
 python manage.py migrate
@@ -233,7 +269,7 @@ Create a superuser.
 python manage.py createsuperuser
 ```
 
-Start the server.
+Run the development server.
 
 ```bash
 python manage.py runserver
@@ -249,19 +285,19 @@ http://127.0.0.1:8000/
 
 ## Running with Docker
 
-Build the project.
+Build the containers.
 
 ```bash
 docker compose build
 ```
 
-Run the containers.
+Start the application.
 
 ```bash
 docker compose up
 ```
 
-Apply migrations.
+Run migrations.
 
 ```bash
 docker compose exec web python manage.py migrate
@@ -289,29 +325,19 @@ Run all tests.
 python manage.py test
 ```
 
-Or only the API tests.
+Run only the API tests.
 
 ```bash
 python manage.py test news.tests.test_api
-```
-
-Current result:
-
-```
-Found 12 tests
-
-Ran 12 tests
-
-OK
 ```
 
 ---
 
 ## Documentation
 
-The project also includes Sphinx documentation.
+Sphinx documentation is included.
 
-Generate it using:
+Generate the documentation using:
 
 ```bash
 cd docs
@@ -346,25 +372,40 @@ News Application/
 
 ## Completed Features
 
-This project includes:
-
 - Custom User Model
-- Reader, Journalist and Editor roles
-- Publisher management
-- Reader subscriptions
-- Article approval workflow
-- Newsletter management
+- Role-based Authentication
+- Automatic Django Group Assignment
+- Automatic Reader Subscription Cleanup on Role Change
+- Publisher Management
+- Reader Subscriptions
+- Article Approval Workflow
+- Newsletter Management
 - Approved Article Log
-- Email notifications
+- Email Notifications
 - REST API
 - JWT Authentication
-- MariaDB
-- Docker support
-- Sphinx documentation
-- Unit tests
+- MariaDB Integration
+- Docker Support
+- Sphinx Documentation
+- Automated API Tests
+- Role-Based Access Control
+- Improved User Interface for Editors and Readers
+
+---
+
+## Improvements After Reviewer Feedback
+
+The project was enhanced following reviewer feedback by implementing the following improvements:
+
+- Journalists can edit and delete their own articles.
+- Editors can edit and delete all articles.
+- Editors can create publishers directly from the application.
+- Reader subscription actions are available directly from the article list, improving usability.
+- Editor shortcuts for **Create Publisher** and **Pending Articles** are displayed prominently on the home page.
+- Reader subscriptions are automatically removed when a user's role changes from Reader to Journalist or Editor, ensuring role-specific data remains consistent.
 
 ---
 
 ## Author
 
-Phumelela Mdingi
+**Phumelela Mdingi**

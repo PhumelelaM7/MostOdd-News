@@ -82,12 +82,66 @@ Articles
 
             {% endif %}
 
+            <!-- Read the full article -->
             <a
                 href="{% url 'article_detail' article.id %}"
                 class="button"
             >
                 Read Article
             </a>
+
+            <!-- Reader subscription options -->
+            {% if user.is_authenticated and user.role == "reader" %}
+
+                <!-- Subscribe to Journalist -->
+                {% if article.author.role == "journalist" %}
+
+                    <a
+                        href="{% url 'subscribe_journalist' article.author.id %}"
+                        class="button"
+                    >
+                        Subscribe Journalist
+                    </a>
+
+                {% endif %}
+
+                <!-- Subscribe to Publisher -->
+                {% if article.publisher %}
+
+                    <a
+                        href="{% url 'subscribe_publisher' article.publisher.id %}"
+                        class="button"
+                    >
+                        Subscribe Publisher
+                    </a>
+
+                {% endif %}
+
+            {% endif %}
+
+            <!-- Journalists can edit/delete their own articles.
+                Editors and superusers can edit/delete every article. -->
+            {% if user.is_authenticated %}
+
+                {% if user == article.author or user.role == "editor" or user.is_superuser %}
+
+                    <a
+                        href="{% url 'article_update' article.id %}"
+                        class="button"
+                    >
+                        Edit
+                    </a>
+
+                    <a
+                        href="{% url 'article_delete' article.id %}"
+                        class="button"
+                    >
+                        Delete
+                    </a>
+
+                {% endif %}
+
+            {% endif %}
 
         </div>
 

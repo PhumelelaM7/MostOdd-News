@@ -28,6 +28,29 @@ MostOdd News
         Read Articles
     </a>
 
+    <!-- Editors may create publishers -->
+    {% if user.is_authenticated %}
+
+        {% if user.role == "editor" or user.is_superuser %}
+
+            <a
+                href="{% url 'publisher_create' %}"
+                class="button"
+            >
+                Create Publisher
+            </a>
+
+            <a
+                href="{% url 'pending_articles' %}"
+                class="button"
+            >
+                Pending Articles
+            </a>
+
+        {% endif %}
+
+    {% endif %}
+
 </section>
 
 <section class="articles">

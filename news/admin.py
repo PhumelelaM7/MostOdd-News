@@ -3,8 +3,11 @@ Admin configuration for the MostOdd News application.
 """
 
 
-# Import Django's admin module
+# Import Django admin
 from django.contrib import admin
+
+# Import Django's built-in UserAdmin
+from django.contrib.auth.admin import UserAdmin
 
 # Import application models
 from .models import (
@@ -19,9 +22,84 @@ from .models import (
 # ---------------------------------------------------------
 # Register models without custom admin configuration
 # ---------------------------------------------------------
-admin.site.register(CustomUser)
 admin.site.register(Publisher)
 admin.site.register(ApprovedArticleLog)
+
+
+# ---------------------------------------------------------
+# Custom User Admin
+# ---------------------------------------------------------
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    """
+    Custom admin for the CustomUser model.
+    """
+
+    # Display these columns
+    list_display = (
+        "username",
+        "email",
+        "role",
+        "is_staff",
+        "is_active",
+    )
+
+    # Allow filtering
+    list_filter = (
+        "role",
+        "is_staff",
+        "is_active",
+    )
+
+    # Add the custom role and subscriptions to the admin page
+    fieldsets = UserAdmin.fieldsets + (
+        (
+            "MostOdd News",
+            {
+                "fields": (
+                    "role",
+                    "subscribed_publishers",
+                    "subscribed_journalists",
+                ),
+            },
+        ),
+    )
+
+    # Show these fields when creating a new user
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (
+            None,
+            {
+                "fields": (
+                    "role",
+                ),
+            },
+        ),
+    )
+
+    # Search fields
+    search_fields = (
+        "username",
+        "email",
+    )
+
+    # ------------------------------------
+    # Save related objects
+    # ------------------------------------
+    def save_related(self, request, form, formsets, change):
+        """
+        After Django saves the ManyToMany fields,
+        remove subscriptions for non-readers.
+        """
+
+        super().save_related(request, form, formsets, change)
+
+        user = form.instance
+
+        if user.role != "reader":
+            user.subscribed_publishers.clear()
+            user.subscribed_journalists.clear()
+
 
 # ---------------------------------------------------------
 # Article Admin

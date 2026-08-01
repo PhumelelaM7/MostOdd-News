@@ -14,44 +14,70 @@ from django.contrib.auth.models import AbstractUser
 # Custom User Model
 # ------------------------------------
 class CustomUser(AbstractUser):
-    """ Custom user model for the MostOdd News application.
+    """
+    Custom user model for the MostOdd News application.
     """
 
-    # Define the available user roles
+    # ------------------------------------
+    # Available user roles
+    # ------------------------------------
     ROLE_CHOICES = [
-        ('reader', 'Reader'),
-        ('journalist', 'Journalist'),
-        ('editor', 'Editor'),
+        ("reader", "Reader"),
+        ("journalist", "Journalist"),
+        ("editor", "Editor"),
     ]
 
     # Store the user's role
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
-        default='reader'
+        default="reader",
     )
 
-    # Publishers that this reader subscribes to
-    # Only applicable to users with the Reader role.
+    # ------------------------------------
+    # Reader subscriptions
+    # ------------------------------------
+
+    # Publishers that a reader follows
     subscribed_publishers = models.ManyToManyField(
         "Publisher",
         blank=True,
-        related_name="subscribers"
+        related_name="subscribers",
     )
 
-    # Journalists that this reader subscribes to
-    # Only applicable to users with the Reader role.
+    # Journalists that a reader follows
     subscribed_journalists = models.ManyToManyField(
         "self",
         blank=True,
         symmetrical=False,
         limit_choices_to={"role": "journalist"},
-        related_name="journalist_subscribers"
+        related_name="journalist_subscribers",
     )
 
-    # Display the username and role in the Django Admin
-    def __str__(self):
-        return f"{self.username} ({self.role})"
+    # ------------------------------------
+    # Save the user
+    # ------------------------------------
+    def save(self, *args, **kwargs):
+        """
+        Save the user.
+
+        If the user is not a Reader,
+        remove all reader subscriptions
+        so that only Readers may subscribe
+        to Publishers and Journalists.
+        """
+
+        # Save the user first
+        super().save(*args, **kwargs)
+
+        # Only Readers may keep subscriptions
+        if self.role != "reader":
+
+            # Remove Publisher subscriptions
+            self.subscribed_publishers.clear()
+
+            # Remove Journalist subscriptions
+            self.subscribed_journalists.clear()
 
 
 # ---------------------------------------------------------
