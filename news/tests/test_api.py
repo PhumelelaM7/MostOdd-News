@@ -16,10 +16,13 @@ from news.models import (
 
 
 class NewsAPITestCase(APITestCase):
+    """
+    Automated tests for the News Application API.
+    """
 
     def setUp(self):
         """
-        Create test data used throughout the API tests.
+        Create reusable test data.
         """
 
         # -----------------------------
@@ -61,12 +64,10 @@ class NewsAPITestCase(APITestCase):
             description="Testing Publisher",
         )
 
-        self.publisher.journalists.add(
-            self.journalist
-        )
+        self.publisher.journalists.add(self.journalist)
 
         # -----------------------------
-        # Approved article
+        # Approved Article
         # -----------------------------
         self.article = Article.objects.create(
             title="Approved Article",
@@ -85,13 +86,26 @@ class NewsAPITestCase(APITestCase):
             author=self.journalist,
         )
 
-        self.newsletter.articles.add(
-            self.article
-        )
+        self.newsletter.articles.add(self.article)
 
     # =====================================================
-    # Authentication
+    # Authentication Tests
     # =====================================================
+
+    def test_reader_can_login(self):
+
+        response = self.client.post(
+            "/api/token/",
+            {
+                "username": "TestReader",
+                "password": "Password123!",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
 
     def test_journalist_can_login(self):
 
@@ -108,15 +122,43 @@ class NewsAPITestCase(APITestCase):
             status.HTTP_200_OK,
         )
 
+    def test_editor_can_login(self):
+
+        response = self.client.post(
+            "/api/token/",
+            {
+                "username": "TestEditor",
+                "password": "Password123!",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
+
+    def test_invalid_login(self):
+
+        response = self.client.post(
+            "/api/token/",
+            {
+                "username": "TestJournalist",
+                "password": "WrongPassword",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
     # =====================================================
     # Journalist Tests
     # =====================================================
 
     def test_journalist_can_create_article(self):
 
-        self.client.force_authenticate(
-            user=self.journalist
-        )
+        self.client.force_authenticate(user=self.journalist)
 
         response = self.client.post(
             "/api/articles/",
@@ -134,9 +176,7 @@ class NewsAPITestCase(APITestCase):
 
     def test_journalist_can_create_newsletter(self):
 
-        self.client.force_authenticate(
-            user=self.journalist
-        )
+        self.client.force_authenticate(user=self.journalist)
 
         response = self.client.post(
             "/api/newsletters/",
@@ -152,15 +192,34 @@ class NewsAPITestCase(APITestCase):
             status.HTTP_201_CREATED,
         )
 
+    def test_journalist_cannot_approve_article(self):
+
+        article = Article.objects.create(
+            title="Pending",
+            content="Pending",
+            author=self.journalist,
+            publisher=self.publisher,
+            approved=False,
+        )
+
+        self.client.force_login(self.journalist)
+
+        response = self.client.post(
+            f"/news/approve/{article.id}/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
     # =====================================================
     # Reader Tests
     # =====================================================
 
     def test_reader_cannot_create_article(self):
 
-        self.client.force_authenticate(
-            user=self.reader
-        )
+        self.client.force_authenticate(user=self.reader)
 
         response = self.client.post(
             "/api/articles/",
@@ -175,15 +234,43 @@ class NewsAPITestCase(APITestCase):
             status.HTTP_403_FORBIDDEN,
         )
 
+    def test_reader_cannot_update_article(self):
+
+        self.client.force_authenticate(user=self.reader)
+
+        response = self.client.put(
+            f"/api/articles/{self.article.id}/",
+            {
+                "title": "Updated",
+                "content": "Updated",
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_reader_cannot_delete_article(self):
+
+        self.client.force_authenticate(user=self.reader)
+
+        response = self.client.delete(
+            f"/api/articles/{self.article.id}/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
     def test_reader_can_only_view_subscribed_articles(self):
 
         self.reader.subscribed_publishers.add(
             self.publisher
         )
 
-        self.client.force_authenticate(
-            user=self.reader
-        )
+        self.client.force_authenticate(user=self.reader)
 
         response = self.client.get(
             "/api/articles/subscribed/"
@@ -200,14 +287,30 @@ class NewsAPITestCase(APITestCase):
         )
 
     # =====================================================
+    # Anonymous Access
+    # =====================================================
+
+    def test_anonymous_user_cannot_view_subscribed_articles(self):
+
+        response = self.client.get(
+            "/api/articles/subscribed/"
+        )
+
+        self.assertIn(
+            response.status_code,
+            [
+                status.HTTP_401_UNAUTHORIZED,
+                status.HTTP_403_FORBIDDEN,
+            ],
+        )
+
+    # =====================================================
     # Editor Tests
     # =====================================================
 
     def test_editor_can_delete_article(self):
 
-        self.client.force_authenticate(
-            user=self.editor
-        )
+        self.client.force_authenticate(user=self.editor)
 
         response = self.client.delete(
             f"/api/articles/{self.article.id}/"
@@ -218,23 +321,8 @@ class NewsAPITestCase(APITestCase):
             status.HTTP_204_NO_CONTENT,
         )
 
-    def test_reader_cannot_delete_article(self):
-
-        self.client.force_authenticate(
-            user=self.reader
-        )
-
-        response = self.client.delete(
-            f"/api/articles/{self.article.id}/"
-        )
-
-        self.assertEqual(
-            response.status_code,
-            status.HTTP_403_FORBIDDEN,
-        )
-
     # =====================================================
-    # API Retrieval Tests
+    # API Retrieval
     # =====================================================
 
     def test_get_all_approved_articles(self):
@@ -287,9 +375,9 @@ class NewsAPITestCase(APITestCase):
         mock_post,
     ):
         """
-        Verify that editors can approve
-        an article and trigger the
-        integration logic.
+        Editors should be able to approve articles,
+        send email notifications,
+        and trigger the API integration.
         """
 
         article = Article.objects.create(
@@ -300,9 +388,7 @@ class NewsAPITestCase(APITestCase):
             approved=False,
         )
 
-        self.client.force_login(
-            self.editor
-        )
+        self.client.force_login(self.editor)
 
         response = self.client.post(
             f"/news/approve/{article.id}/"
@@ -319,10 +405,12 @@ class NewsAPITestCase(APITestCase):
             article.approved
         )
 
-        mock_post.assert_called()
+        mock_send_mail.assert_called_once()
+
+        mock_post.assert_called_once()
 
     # =====================================================
-    # Newsletter Retrieval
+    # Newsletter Tests
     # =====================================================
 
     def test_newsletter_exists(self):
