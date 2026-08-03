@@ -380,6 +380,7 @@ class NewsAPITestCase(APITestCase):
         and trigger the API integration.
         """
 
+        # Create a pending article
         article = Article.objects.create(
             title="Pending",
             content="Pending article",
@@ -388,25 +389,48 @@ class NewsAPITestCase(APITestCase):
             approved=False,
         )
 
+        # -------------------------------------------------
+        # Create a Reader who subscribes to the article
+        # -------------------------------------------------
+        reader = CustomUser.objects.create_user(
+            username="reader_test",
+            password="password123",
+            email="reader@example.com",
+            role="reader",
+        )
+
+        # Subscribe to the publisher
+        reader.subscribed_publishers.add(self.publisher)
+
+        # Subscribe to the journalist
+        reader.subscribed_journalists.add(self.journalist)
+
+        # Log in as the Editor
         self.client.force_login(self.editor)
 
+        # Approve the article
         response = self.client.post(
             f"/news/approve/{article.id}/"
         )
 
+        # Should redirect after approval
         self.assertEqual(
             response.status_code,
             status.HTTP_302_FOUND,
         )
 
+        # Refresh from database
         article.refresh_from_db()
 
+        # Article should now be approved
         self.assertTrue(
             article.approved
         )
 
+        # Email notification should be sent
         mock_send_mail.assert_called_once()
 
+        # Internal API should be called
         mock_post.assert_called_once()
 
     # =====================================================

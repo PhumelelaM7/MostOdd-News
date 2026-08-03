@@ -125,6 +125,20 @@ urlpatterns = [
         name="subscribe_publisher",
     ),
 
+    # Publisher update
+    path(
+        "publishers/edit/<int:publisher_id>/",
+        views.publisher_update,
+        name="publisher_update",
+    ),
+
+    # Publisher delete
+    path(
+        "publishers/delete/<int:publisher_id>/",
+        views.publisher_delete,
+        name="publisher_delete",
+    ),
+
     # Subscribe to a journalist
     path(
         "journalists/<int:journalist_id>/subscribe/",

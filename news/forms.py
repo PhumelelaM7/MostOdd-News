@@ -98,7 +98,7 @@ class NewsletterForm(forms.ModelForm):
     """
 
     class Meta:
-        """ Meta options for the News Letter. """
+        """ Meta options for the Newsletter. """
 
         # Use the Newsletter model
         model = Newsletter
@@ -128,6 +128,30 @@ class NewsletterForm(forms.ModelForm):
                 approved=True
             )
         )
+
+    # ---------------------------------------------------------
+    # Validate selected articles
+    # ---------------------------------------------------------
+    def clean_articles(self):
+        """
+        Ensure that only approved articles
+        can be added to a newsletter.
+        """
+
+        # Get the selected articles
+        articles = self.cleaned_data.get("articles")
+
+        # Check each selected article
+        for article in articles:
+
+            # Reject unapproved articles
+            if not article.approved:
+                raise forms.ValidationError(
+                    "Only approved articles may be added to a newsletter."
+                )
+
+        # Return the validated articles
+        return articles
 
 
 # ---------------------------------------------------------

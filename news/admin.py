@@ -51,7 +51,7 @@ class CustomUserAdmin(UserAdmin):
         "is_active",
     )
 
-    # Add the custom role and subscriptions to the admin page
+    # Add the custom role and subscriptions
     fieldsets = UserAdmin.fieldsets + (
         (
             "MostOdd News",
@@ -82,6 +82,83 @@ class CustomUserAdmin(UserAdmin):
         "username",
         "email",
     )
+
+    # ---------------------------------------------------------
+    # Display role-specific fields
+    # ---------------------------------------------------------
+    def get_fieldsets(self, request, obj=None):
+        """
+        Only Readers should see the subscription fields.
+        """
+
+        # Start with the default fieldsets
+        fieldsets = list(super().get_fieldsets(request, obj))
+
+        # New user being created
+        if obj is None:
+            return fieldsets
+
+        # Hide reader-only fields for non-readers
+        if obj.role != "reader":
+
+            updated_fieldsets = []
+
+            for title, options in fieldsets:
+
+                fields = list(options.get("fields", ()))
+
+                fields = [
+                    field
+                    for field in fields
+                    if field not in (
+                        "subscribed_publishers",
+                        "subscribed_journalists",
+                    )
+                ]
+
+                updated_fieldsets.append(
+                    (
+                        title,
+                        {
+                            **options,
+                            "fields": tuple(fields),
+                        },
+                    )
+                )
+
+            return updated_fieldsets
+
+        return fieldsets
+
+    # ---------------------------------------------------------
+    # Save related objects
+    # ---------------------------------------------------------
+    def save_related(self, request, form, formsets, change):
+        """
+        After Django saves the ManyToMany fields,
+        remove subscriptions for non-readers.
+        """
+
+        # Save the related objects first
+        super().save_related(
+            request,
+            form,
+            formsets,
+            change,
+        )
+
+        # Get the saved user
+        user = form.instance
+
+        # Only Readers may keep subscriptions
+        if user.role != "reader":
+
+            # Remove Publisher subscriptions
+            user.subscribed_publishers.clear()
+
+            # Remove Journalist subscriptions
+            user.subscribed_journalists.clear()
+    
 
     # ------------------------------------
     # Save related objects

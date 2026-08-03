@@ -4,6 +4,20 @@
 
 <h2>Publishers</h2>
 
+{% if user.is_superuser or user.role == "editor" %}
+
+    <!-- Create a new publisher -->
+    <a
+        href="{% url 'publisher_create' %}"
+        class="button"
+    >
+        Create Publisher
+    </a>
+
+    <br><br>
+
+{% endif %}
+
 {% if publishers %}
 
 <ul>
@@ -12,30 +26,48 @@
 
     <li>
 
+        <!-- Publisher name -->
         <h3>{{ publisher.name }}</h3>
 
+        <!-- Publisher description -->
         <p>{{ publisher.description }}</p>
 
+        <!-- Assigned journalists -->
         <p>
+
             <strong>Journalists:</strong>
 
             {% for journalist in publisher.journalists.all %}
+
                 {{ journalist.username }}
+
                 {% if not forloop.last %}, {% endif %}
+
             {% empty %}
+
                 None assigned
+
             {% endfor %}
+
         </p>
 
+        <!-- Assigned editors -->
         <p>
+
             <strong>Editors:</strong>
 
             {% for editor in publisher.editors.all %}
+
                 {{ editor.username }}
+
                 {% if not forloop.last %}, {% endif %}
+
             {% empty %}
+
                 None assigned
+
             {% endfor %}
+
         </p>
 
         {% if user.role == "reader" %}
@@ -46,6 +78,26 @@
                 class="button"
             >
                 Subscribe
+            </a>
+
+        {% endif %}
+
+        {% if user.is_superuser or user.role == "editor" %}
+
+            <!-- Edit publisher -->
+            <a
+                href="{% url 'publisher_update' publisher.id %}"
+                class="button"
+            >
+                Edit
+            </a>
+
+            <!-- Delete publisher -->
+            <a
+                href="{% url 'publisher_delete' publisher.id %}"
+                class="button"
+            >
+                Delete
             </a>
 
         {% endif %}

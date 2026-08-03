@@ -24,8 +24,11 @@ from django.core.mail import send_mail
 
 from rest_framework import generics
 from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
 )
+
+from rest_framework.exceptions import PermissionDenied
 
 # Local application imports
 from .forms import (
@@ -296,21 +299,23 @@ class SubscribedArticlesAPIView(generics.ListAPIView):
     serializer_class = ArticleSerializer
 
     permission_classes = [
-        IsAuthenticatedOrReadOnly,
+        IsAuthenticated,
     ]
 
     def get_queryset(self):
         """
         Return approved articles from the current
-        user's subscriptions.
+        reader's subscriptions.
         """
 
         # Get the logged-in user
         user = self.request.user
 
-        # User must be authenticated
-        if not user.is_authenticated:
-            return Article.objects.none()
+        # Only Readers may use this endpoint
+        if user.role != "reader":
+            raise PermissionDenied(
+                "Only readers may access subscribed articles."
+            )
 
         # Get subscribed publishers
         publishers = user.subscribed_publishers.all()
@@ -322,8 +327,8 @@ class SubscribedArticlesAPIView(generics.ListAPIView):
         return Article.objects.filter(
             approved=True,
         ).filter(
-            models.Q(publisher__in=publishers) |
-            models.Q(author__in=journalists)
+            models.Q(publisher__in=publishers)
+            | models.Q(author__in=journalists)
         ).distinct()
 
 
@@ -954,6 +959,120 @@ def publisher_create(request):
         {
             "form": form,
             "page_title": "Create Publisher",
+        },
+    )
+
+
+# ---------------------------------------------------------
+# Update a publisher
+# ---------------------------------------------------------
+@login_required
+def publisher_update(request, publisher_id):
+    """
+    Allow Editors to edit publishers.
+    """
+
+    # Allow access for superusers and editors only
+    if not (
+        request.user.is_superuser
+        or request.user.role == "editor"
+        or request.user.groups.filter(
+            name="Editor"
+        ).exists()
+    ):
+        return HttpResponseForbidden(
+            "Access denied."
+        )
+
+    # Retrieve the selected publisher
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id,
+    )
+
+    # Check whether the form was submitted
+    if request.method == "POST":
+
+        # Populate the form with submitted data
+        form = PublisherForm(
+            request.POST,
+            instance=publisher,
+        )
+
+        # Validate the submitted form
+        if form.is_valid():
+
+            # Save the updated publisher
+            form.save()
+
+            # Return to the publisher list
+            return redirect(
+                "publisher_list"
+            )
+
+    else:
+
+        # Display the form with the existing publisher data
+        form = PublisherForm(
+            instance=publisher,
+        )
+
+    # Display the publisher form
+    return render(
+        request,
+        "news/publisher_form.html",
+        {
+            "form": form,
+            "page_title": "Edit Publisher",
+        },
+    )
+
+
+# ---------------------------------------------------------
+# Delete a publisher
+# ---------------------------------------------------------
+@login_required
+def publisher_delete(request, publisher_id):
+    """
+    Allow Editors to delete publishers.
+    """
+
+    # Allow access for superusers and editors only
+    if not (
+        request.user.is_superuser
+        or request.user.role == "editor"
+        or request.user.groups.filter(
+            name="Editor"
+        ).exists()
+    ):
+        return HttpResponseForbidden(
+            "Access denied."
+        )
+
+    # Retrieve the selected publisher
+    publisher = get_object_or_404(
+        Publisher,
+        id=publisher_id,
+    )
+
+    # Check whether the delete confirmation
+    # form was submitted
+    if request.method == "POST":
+
+        # Delete the selected publisher
+        publisher.delete()
+
+        # Return to the publisher list
+        return redirect(
+            "publisher_list"
+        )
+
+    # Display the delete confirmation page
+    return render(
+        request,
+        "news/publisher_confirm_delete.html",
+        {
+            "publisher": publisher,
         },
     )
 

@@ -1,0 +1,47 @@
+<!-- Extend the base template -->
+{% extends "news/base.html" %}
+
+<!-- Page title -->
+{% block title %}
+Delete Publisher
+{% endblock %}
+
+<!-- Main page content -->
+{% block content %}
+
+<h2>Delete Publisher</h2>
+
+<!-- Display confirmation message -->
+<p>
+
+    Are you sure you want to delete
+
+    <strong>{{ publisher.name }}</strong>?
+
+</p>
+
+<!-- Delete confirmation form -->
+<form method="post">
+
+    <!-- Django CSRF protection -->
+    {% csrf_token %}
+
+    <!-- Confirm deletion -->
+    <button
+        type="submit"
+        class="button"
+    >
+        Delete
+    </button>
+
+    <!-- Return to publisher list -->
+    <a
+        href="{% url 'publisher_list' %}"
+        class="button"
+    >
+        Cancel
+    </a>
+
+</form>
+
+{% endblock %}
